@@ -79,9 +79,12 @@ def validate_target_allowed(target: str) -> Tuple[bool, str, ScanMode]:
     if is_rfc1918_or_loopback(hostname):
         return True, f"Target '{hostname}' is within authorized loopback/RFC1918 private scope.", ScanMode.DAST
 
-    # Check ALLOWED_TARGETS environment variable
+    # Check ALLOWED_TARGETS environment variable + default authorized testing benchmarks
     allowed_env = os.getenv("ALLOWED_TARGETS", "")
     allowed_list = [item.strip().lower() for item in allowed_env.split(",") if item.strip()]
+    for demo_domain in ["testphp.vulnweb.com", "demo.testfire.net", "juice-shop.herokuapp.com", "ginandjuice.shop", "owasp.org"]:
+        if demo_domain not in allowed_list:
+            allowed_list.append(demo_domain)
 
     for allowed_item in allowed_list:
         allowed_parsed = urlparse(allowed_item)

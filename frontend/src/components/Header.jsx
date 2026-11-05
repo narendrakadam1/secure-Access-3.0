@@ -1,8 +1,9 @@
 import React from 'react';
-import { Shield, BookOpen, Activity, Lock, Sun, Moon, FileSearch } from 'lucide-react';
+import { Shield, BookOpen, Activity, Lock, Sun, Moon, Network } from 'lucide-react';
 
 export default function Header({
   onOpenResearchGaps,
+  onOpenArchitecture,
   isScanning,
   theme,
   onToggleTheme,
@@ -43,6 +44,16 @@ export default function Header({
             <Activity className="w-3.5 h-3.5" />
             <span>Safe Playbook (≤5 probes)</span>
           </div>
+
+          {/* System Architecture Full-Page Button */}
+          <button
+            onClick={onOpenArchitecture}
+            className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 dark:text-emerald-300 dark:hover:text-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-700/60 px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer hover:scale-[1.02]"
+            title="Open Full-Page System Architecture & Pipeline Specification"
+          >
+            <Network className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>System Architecture</span>
+          </button>
 
           <button
             onClick={onOpenResearchGaps}

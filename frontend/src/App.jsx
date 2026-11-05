@@ -7,19 +7,21 @@ import LiveConsole from './components/LiveConsole';
 import FindingCard from './components/FindingCard';
 import ExportToolbar from './components/ExportToolbar';
 import ResearchGapModal from './components/ResearchGapModal';
+import ArchitecturePage from './components/ArchitecturePage';
 import { startScan, getScanStatus, getReportJson, cancelScan } from './api';
 import { Shield, FileSearch } from 'lucide-react';
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('secureassess_theme') || 'light';
+    return localStorage.getItem('secureassess_theme') || 'dark';
   });
 
+  const [currentView, setCurrentView] = useState('dashboard');
   const [jobId, setJobId] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [currentPhase, setCurrentPhase] = useState('idle');
-  const [currentTarget, setCurrentTarget] = useState('http://localhost:3000');
-  const [currentMode, setCurrentMode] = useState('dast');
+  const [currentTarget, setCurrentTarget] = useState('https://github.com/OWASP/NodeGoat');
+  const [currentMode, setCurrentMode] = useState('sast');
   const [logs, setLogs] = useState([]);
   const [summary, setSummary] = useState({
     total: 0,
@@ -51,6 +53,30 @@ export default function App() {
     }
     localStorage.setItem('secureassess_theme', theme);
   }, [theme]);
+
+  // Handle full-page view hash routing (#architecture)
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === '#architecture') {
+        setCurrentView('architecture');
+      } else {
+        setCurrentView('dashboard');
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  const navigateToArchitecture = () => {
+    window.location.hash = '#architecture';
+    setCurrentView('architecture');
+  };
+
+  const navigateToDashboard = () => {
+    window.location.hash = '';
+    setCurrentView('dashboard');
+  };
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
@@ -218,11 +244,23 @@ export default function App() {
     return true;
   });
 
+  // Render Full-Page Architecture View if selected
+  if (currentView === 'architecture') {
+    return (
+      <ArchitecturePage
+        onBack={navigateToDashboard}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120] text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-200">
       {/* Top Header */}
       <Header
         onOpenResearchGaps={() => setIsResearchGapOpen(true)}
+        onOpenArchitecture={navigateToArchitecture}
         isScanning={isScanning}
         theme={theme}
         onToggleTheme={toggleTheme}
