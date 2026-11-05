@@ -33,11 +33,27 @@ export async function selectModel(model, cloudApiKey = null) {
 export async function startScan(target, mode = 'dast', model = null) {
   const payload = { target, mode };
   if (model) payload.model = model;
-  const res = await fetch(`${API_BASE}/scan`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
+
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/scan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      throw new Error('Local Backend is not running on port 8000. Please start the backend with "backend\\start.bat" or "uvicorn app.main:app".');
+    }
+    throw new Error('Cannot connect to Backend API. Please verify your Render backend service is running and VITE_API_URL is configured in Vercel.');
+  }
+
+  if (res.status === 405) {
+    throw new Error(
+      'Backend not connected: VITE_API_URL is missing in Vercel. Please deploy your backend on Render and add VITE_API_URL=https://your-backend.onrender.com in Vercel Settings -> Environment Variables.'
+    );
+  }
+
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     const message = errorData.detail || `Scan initiation failed (${res.status})`;
